@@ -29,11 +29,8 @@ class TestAuth(unittest.TestCase):
     session = requests.session()
 
     def setUp(self):
-        #self.site = "restful-booker.herokuapp.com"
-        #self.base_url = "https://" + self.site
-        self.site = "192.168.100.5"
-        self.base_url = "http://" + self.site + ":3001"
-
+        self.site = "restful-booker.herokuapp.com"
+        self.base_url = "https://" + self.site
         self.session.headers.update({"Accept": "application/json"})
         self.session.headers.update({"Content-Type": "application/json"})
 
