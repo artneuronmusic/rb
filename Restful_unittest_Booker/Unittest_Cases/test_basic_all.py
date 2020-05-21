@@ -81,6 +81,8 @@ class BookerApiAll(unittest.TestCase):
         log.debug('To load test data.')
         self.port = "3001"
         self.site = "192.168.100.5"
+        #self.site = "127.0.0.1"
+        #self.site = ""
         self.base_url = "http://" + self.site + ":" + self.port
         self.session.headers.update(self.content_type)
         self.session.headers.update(self.accept)
@@ -107,7 +109,7 @@ class BookerApiAll(unittest.TestCase):
 
 
     #checking valid booking id:1
-    def test_get_book_by_valid_id(self):
+    def test_get_booking_by_valid_id(self):
         print("2. Get book info by id")
         response = requests.get(self.base_url+"/booking"+"/1")
         response_json = json.loads(response.text)
@@ -120,12 +122,12 @@ class BookerApiAll(unittest.TestCase):
         self.assertTrue(response_json['totalprice'], int)
         self.assertIsInstance(response_json['depositpaid'], bool)
         self.assertIsInstance(response_json['bookingdates'], dict)
-        self.assertFalse('additionalneeds' in response_json.keys())
+        #self.assertFalse('additionalneeds' in response_json.keys())
         log.info('Test %s passed.' % inspect.stack()[0][3])
 
 
     #invalid id: 99999
-    def test_get_book_by_not_exist_id(self):
+    def test_get_booking_by_not_exist_id(self):
         print("3. Get book info by invalid id")
         response = requests.get(self.base_url + "/booking"+"/99999")
         print(response.status_code)
@@ -134,26 +136,26 @@ class BookerApiAll(unittest.TestCase):
         log.info('Test %s passed.' % inspect.stack()[0][3])
 
 
-
-    def test_create_valid_booking(self):
-        print("4. Booking with complete info")
-        new_data = {
-            "firstname": "Chole",
-            "lastname": "Bryson",
-            "totalprice": 230,
-            "depositpaid": False,
-            "bookingdates": {
-                "checkin": "2018-01-05",
-                "checkout": "2018-01-07"}, "additionalneeds": "extra water bottles"}
-        new_data_json = json.dumps(new_data)
-
-        print("******************")
-
-        response = requests.post(self.base_url + "/booking", data=new_data_json, headers=head)
-        response_json = json.loads(response.text)
-        print("New booking id: " + str(response_json["bookingid"]))
-        self.assertEqual(response.status_code, 200)
-        log.info('Test %s passed.' % inspect.stack()[0][3])
+    #
+    # def test_create_valid_booking(self):
+    #     print("4. Booking with complete info")
+    #     new_data = {
+    #         "firstname": "Chole",
+    #         "lastname": "Bryson",
+    #         "totalprice": 230,
+    #         "depositpaid": False,
+    #         "bookingdates": {
+    #             "checkin": "2018-01-05",
+    #             "checkout": "2018-01-07"}, "additionalneeds": "extra water bottles"}
+    #     new_data_json = json.dumps(new_data)
+    #
+    #     print("******************")
+    #
+    #     response = requests.post(self.base_url + "/booking", data=new_data_json, headers=head)
+    #     response_json = json.loads(response.text)
+    #     print("New booking id: " + str(response_json["bookingid"]))
+    #     self.assertEqual(response.status_code, 200)
+    #     log.info('Test %s passed.' % inspect.stack()[0][3])
 
 
     #same last&first name can be double booking, there is no restriction for this
@@ -200,6 +202,7 @@ class BookerApiAll(unittest.TestCase):
             "firstname": "",
             "lastname": "Duches",
             "totalprice": "",
+            "depositpaid": None,
             "bookingdates": {
                 "checkin": "2019-01-01",
                 "checkout": ""
@@ -345,6 +348,7 @@ class BookerApiAll(unittest.TestCase):
     def tearDown(self):
         print("                \n")
         print("This test is done")
+        #requests.session(config={'keep_alive': False})
 
 
 

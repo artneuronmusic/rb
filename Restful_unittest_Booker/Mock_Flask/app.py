@@ -14,9 +14,12 @@ NOT_FOUND = 'Not found'
 BAD_REQUEST = 'Bad request'
 INTERNAL_FAIL = "Internal failure"
 
-id_json = check_data.get_data()
+
+
+
 
 def _get_item(id):
+    id_json = check_data.get_data()
     #with open('/Users/yuchienhuang/PycharmProjects/python_api_testing/Restful_unittest_Booker/Mock_Flask/Data/book_list.json','r') as f:
      #   id_json = json.load(f)
     #id_json = check_data.get_data()
@@ -39,7 +42,7 @@ def bad_request(error):
 def bad_request(error):
     return make_response(jsonify({'error': INTERNAL_FAIL}), 500)
 
-# collection = DataResource.get_all()
+
 
 
 @app.route('/')
@@ -50,15 +53,18 @@ def home_page():
 #@app.route('/booking')
 @app.route('/booking', methods=['GET'])
 def get_all_id():
+    id_json = check_data.get_data()
 
     return jsonify(id_json), 200
 
 
 @app.route('/booking/<int:id>', methods=['GET'])
 def get_id_with_info(id):
-    item = _get_item(id)
+    id_json = check_data.get_data()
+    item = _get_item(id) #get info for this item
 
     if not item:
+        print("The id is not existing")
         abort(404)
 
     else:
@@ -67,86 +73,92 @@ def get_id_with_info(id):
                 return jsonify(i), 200
 
 
-# #no limitations for repeated/similar booking
-# @app.route('/booking', methods=['POST'])
-# def create_new_booking():
-#
-#
-#
-#     firstname = request.get_json('firstname')
-#     if firstname is None:
-#         abort(500)
-#     lastname = request.get_json('lastname')
-#     if lastname is None:
-#         abort(500)
-#     totalprice = request.get_json('totalprice')
-#     if totalprice is None:
-#         abort(500)
-#     depositpaid = request.get_json('depositpaid')
-#     if depositpaid is None:
-#         abort(500)
-#     bookingdates = request.get_json({"bookingdates"})
-#     if bookingdates is None:
-#         abort(500)
-#     additionalneeds = request.get_json("additionalneeds")
-#     if additionalneeds is None:
-#         abort(500)
-#
-#
-#     booking_id = id_json[-1].get("booking id") + 1
-#
-#     new = {'firstname': firstname, 'lastname': lastname, 'totalprice': totalprice, 'depositpaid': depositpaid,
-#            'bookingdates': bookingdates, 'additionalneeds': additionalneeds,
-#           'booking id': booking_id}
-#     data = id_json.append(new)
-#     print(data)
-#
-#     return jsonify(data), 200
-#
-#
-# # @app.route('/booking/<int:id>', methods=['PUT'])
-# # def update_booking(id):
-# #     item = _get_item(id)
-# #
-# #     if len(item) == 0:
-# #         abort(404)
-# #
-# #     if not request.json:
-# #         abort(400)
-# #
-# #
-# #     firstname = request.json.get('firstname', item[0]['firstname'])
-# #     lastname = request.json.get('lastname', item[0]['lastname'])
-# #     totalprice = request.json.get('totalprice', item[0]['totalprice'])
-# #     depositpaid = request.json.get('depositpaid', item[0]['depositpaid'])
-# #     bookingdates = request.json.get('bookingdates', item[0]['bookingdates'])
-# #     additionalneeds = request.json.get('additionalneeds', item[0]['additionalneeds'])
-# #
-# #     item[0]['firstname'] = firstname
-# #     item[0]['lastname'] = lastname
-# #     item[0]['totalprice'] = totalprice
-# #     item[0]['depositpaid'] = depositpaid
-# #     item[0]['bookingdates'] = bookingdates
-# #     item[0]['addiotnalneeds'] = additionalneeds
-# #
-# #
-# #     return jsonify(item[0]), 200
-# #
-# #
-# # @app.route('/booking/<int:id>', methods=['DELETE'])
-# # def delete_booking(id):
-# #     item = _get_item(id)
-# #     if len(item) == 0:
-# #         abort(404)
-# #     id_json.remove(item[0])
-# #
-# #     return jsonify(item), 201
-# #
-# #
-# #
-# #
-# #
-#
-# if __name__ == "__main__":
-#     #app.run(host='127.0.0.1', port='3001', debug=True)
-#     app.run(debug=True)
+
+#no limitations for repeated/similar booking
+@app.route('/booking', methods=['POST'])
+def create_new_booking():
+
+    data = request.get_json()
+    print(data)
+    if not "firstname" in data:
+        abort(404)
+    if not "lastname" in data:
+        abort(404)
+    if not "totalprice" in data:
+        abort(404)
+    if not "depositpaid" in data:
+        abort(404)
+    if not "bookingdates" in data:
+        abort(404)
+    if not "additionalneeds" in data:
+        abort(404)
+
+    id_json = check_data.get_data()
+    booking_id = id_json[-1]["booking id"] + 1
+
+    data.update({'booking id': booking_id})
+
+    print("my final data")
+    # print(type(data))
+    check_data.create_data(data)
+    id_json = check_data.get_data()
+
+    return jsonify(id_json[-1]), 200
+    #return "goodbye", 200
+
+
+
+
+#how to deal with the cookie thing
+@app.route('/booking/<int:id>', methods=['PUT'])
+def update_booking(id):
+    id_json = check_data.get_data()
+
+    data = request.get_json()
+    #print(data['firstname'])
+
+    for i in id_json:
+        if i["booking id"] == id:
+            i['firstname'] = data['firstname']
+            i['lastname'] = data['lastname']
+            i['totalprice'] = data['totalprice']
+            i['depositpaid'] = data['depositpaid']
+            i['bookingdates'] = data['bookingdates']
+            i['addiotnalneeds'] = data['additionalneeds']
+            i['booking id'] = data['booking id']
+
+
+    check_data.update_data(id_json)
+    update_info = _get_item(id)
+
+    #return "goodbye", 200
+    return jsonify(update_info), 200
+
+
+
+@app.route('/booking/<int:id>', methods=['DELETE'])
+def delete_booking(id):
+    id_json = check_data.get_data()
+
+
+    for i in id_json:
+         if i["booking id"] == id:
+            id_json.remove(i)
+
+
+
+
+    check_data.update_data(id_json)
+
+
+
+    return jsonify(id_json), 201
+
+
+
+
+
+
+if __name__ == "__main__":
+    #app.run(host='127.0.0.1', port='3001', debug=True)
+    app.run(debug=True)
