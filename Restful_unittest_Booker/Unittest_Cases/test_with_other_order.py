@@ -1,66 +1,7 @@
-"""
-*the final goal is to make codes neat and clean and reusable
-*put those tests together will encounter failures most of time, because the data will changed by different functions,
-*after this, i would suggest to use pytest or BDD testing or regression testing to solve the order issue
-*or try mock flask
-
-
-Features:
-    - Common get/post function to
-        * Print every request and response in a API output file
-        * Append common headers
-"""
 import requests
 import json
 import unittest
-import logging
-import os
-import inspect
-import sys
 
-
-#this one can help ur unittest not run in order
-#unittest.TestLoader.sortTestMethodsUsing = None
-#import jsonpath
-
-
-# logging.basicConfig(filename='/path/to/file.log', filemode='w', level=logging.DEBUG)
-
-if sys.version_info[0] < 3:
-    raise Exception("Requires Python 3 or above please.")
-
-#set beginning for debug, info, warning, error, crititcal
-LOG_LEVEL = logging.INFO
-
-#scripts-->logs -->run
-
-# root_path is parent folder of Scripts folder (one level up)
-root_path = os.path.dirname( os.path.dirname(os.path.realpath(__file__)))
-
-# create formatter
-common_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %I:%M:%S')
-
-# Note: To create multiple log files, must use different logger name.
-def setup_logger(log_file, level=logging.INFO, name='', formatter=common_formatter):
-
-    handler = logging.FileHandler(log_file, mode='w')  # default mode is append
-    handler.setFormatter(formatter)
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    logger.addHandler(handler)
-    return logger
-
-
-# logger ofr default debug
-debug_formatter = logging.Formatter('%(asctime)s: %(message)s', datefmt='%Y-%m-%d %I:%M:%S')
-debug_log_filename = root_path + os.sep + 'Logs' + os.sep + 'debug.log'
-log = setup_logger(debug_log_filename, LOG_LEVEL,'log', formatter=debug_formatter)
-
-
-# logger for API outputs
-api_formatter = logging.Formatter('%(asctime)s: %(message)s', datefmt='%Y-%m-%d %I:%M:%S')
-api_outputs_filename = root_path + os.sep + 'Logs' + os.sep + 'api_outputs.log'
-log_api = setup_logger(api_outputs_filename, LOG_LEVEL,'log_api', formatter=api_formatter)
 
 head = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 #head_json = json.dumps(head, indent=4)
@@ -71,7 +12,25 @@ auth_value = {
 json_auth_value = json.dumps(auth_value)
 
 
+#this one still follow the alphabetic order
 
+def suite():
+    suite = unittest.TestSuite()
+    suite.addTest(BookerApiAll('test_get_all'))
+    suite.addTest(BookerApiAll('test_get_booking_by_valid_id'))
+    suite.addTest(BookerApiAll('test_get_booking_by_not_exist_id'))
+    suite.addTest(BookerApiAll('test_create_valid_booking'))
+    suite.addTest(BookerApiAll('test_create_replicated_booking'))
+    suite.addTest(BookerApiAll('test_create_booking_with_missing_info'))
+    suite.addTest(BookerApiAll('test_create_booking_some_empty_info'))
+    suite.addTest(BookerApiAll('test_auth_token'))
+    suite.addTest(BookerApiAll('test_update_info_valid_id'))
+    suite.addTest(BookerApiAll('test_update_valid_id_some_empty_info'))
+    suite.addTest(BookerApiAll('test_update_with_invalid_id'))
+    suite.addTest(BookerApiAll('test_partial_update'))
+    suite.addTest(BookerApiAll('test_remove_with_id'))
+    suite.addTest(BookerApiAll('test_remove_with_invalid_id'))
+    return suite
 
 class BookerApiAll(unittest.TestCase):
     jar = requests.cookies.RequestsCookieJar()
@@ -79,8 +38,9 @@ class BookerApiAll(unittest.TestCase):
     content_type = {'Content-Type': 'application/json'}
     accept = {'Accept': 'application/json'}
 
+
     def setUp(self):
-        log.debug('To load test data.')
+
         self.port = "3001"
         self.site = "192.168.100.5"
         #self.site = "127.0.0.1"
@@ -107,7 +67,7 @@ class BookerApiAll(unittest.TestCase):
         self.assertIsNotNone(response_json)
         self.assertIsNotNone(amount_books)
         self.assertGreater(amount_books, 0)
-        log.info('Test %s passed.' % inspect.stack()[0][3])
+
 
 
     #checking valid booking id:1
@@ -125,7 +85,7 @@ class BookerApiAll(unittest.TestCase):
         self.assertIsInstance(response_json['depositpaid'], bool)
         self.assertIsInstance(response_json['bookingdates'], dict)
         #self.assertFalse('additionalneeds' in response_json.keys())
-        log.info('Test %s passed.' % inspect.stack()[0][3])
+
 
 
     #invalid id: 99999
@@ -135,7 +95,7 @@ class BookerApiAll(unittest.TestCase):
         print(response.status_code)
 
         self.assertEqual(response.status_code, 404)
-        log.info('Test %s passed.' % inspect.stack()[0][3])
+
 
 
 
@@ -157,7 +117,7 @@ class BookerApiAll(unittest.TestCase):
         response_json = json.loads(response.text)
         print("New booking id: " + str(response_json["bookingid"]))
         self.assertEqual(response.status_code, 200)
-        log.info('Test %s passed.' % inspect.stack()[0][3])
+
 
 
     #same last&first name can be double booking, there is no restriction for this
@@ -177,7 +137,7 @@ class BookerApiAll(unittest.TestCase):
         response_json = json.loads(response.text)
         print("New booking id: " + str(response_json["bookingid"]))
         self.assertEqual(response.status_code, 200)
-        log.info('Test %s passed.' % inspect.stack()[0][3])
+
 
 
     #the system will not take the request with some missing info
@@ -195,7 +155,7 @@ class BookerApiAll(unittest.TestCase):
 
         response = requests.post(self.base_url+ "/booking", data=json_updating_with_flaw, headers=head)
         self.assertEqual(response.status_code, 500)
-        log.info('Test %s passed.' % inspect.stack()[0][3])
+
 
 
     def test_create_booking_some_empty_info(self):
@@ -215,7 +175,7 @@ class BookerApiAll(unittest.TestCase):
 
         response = requests.post(self.base_url+ "/booking", data=json_with_some_empty, headers=head)
         self.assertEqual(response.status_code, 500)
-        log.info('Test %s passed.' % inspect.stack()[0][3])
+
 
 
     def test_auth_token(self):
@@ -228,7 +188,7 @@ class BookerApiAll(unittest.TestCase):
         self.jar.set_cookie(cookie_obj)
         print(str(self.jar))
         self.assertEqual(response.status_code, 200)
-        log.info('Test %s passed.' % inspect.stack()[0][3])
+
 
 
 
@@ -252,7 +212,7 @@ class BookerApiAll(unittest.TestCase):
         response_get = requests.get(self.base_url+"/booking"+"/2")
         get_json = json.loads(response_get.text)
         print(get_json)
-
+        print("COOKIES!!!!!!!!!!!!!!!!!!!!!!!")
         print(str(self.jar))
         response_update = self.session.put(self.base_url + "/booking/3", cookies=self.jar, data=json_updating_info_all)
         update_json = json.loads(response_update.text)
@@ -261,7 +221,7 @@ class BookerApiAll(unittest.TestCase):
         self.assertEqual(response_update.status_code, 200)
         self.assertEqual(update_json["firstname"], "Judie")
         self.assertEqual(update_json["lastname"], "Duches")
-        log.info('Test %s passed.' % inspect.stack()[0][3])
+
 
 
 
@@ -282,11 +242,11 @@ class BookerApiAll(unittest.TestCase):
         }
         json_with_some_empty = json.dumps(updating_info_with_some_empty)
         response = self.session.put(self.base_url + "/booking/4", cookies=self.jar, data=json_with_some_empty )
-        #update_json = json.loads(response.text)
+        json.loads(response.text)
 
 
         self.assertEqual(response.status_code, 200)
-        log.info('Test %s passed.' % inspect.stack()[0][3])
+
 
 
     #id:99
@@ -308,11 +268,11 @@ class BookerApiAll(unittest.TestCase):
         json_with_some_empty = json.dumps(updating_info_all)
 
         response = self.session.put(self.base_url + "/booking/99", cookies=self.jar, data=json_with_some_empty)
-        #update_json = json.loads(response.text)
-        #print("Update with invalid id: "+update_json)
+        update_json = json.loads(response.text)
+        print("Update with invalid id: "+update_json)
 
         self.assertEqual(response.status_code, 405)
-        log.info('Test %s passed.' % inspect.stack()[0][3])
+
 
     #id:1
     def test_partial_update(self):
@@ -328,7 +288,7 @@ class BookerApiAll(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(update_json["firstname"], "Lisa")
-        log.info('Test %s passed.' % inspect.stack()[0][3])
+
 
     #id: 5
     def test_remove_with_id(self):
@@ -337,7 +297,7 @@ class BookerApiAll(unittest.TestCase):
         response = self.session.delete(self.base_url + "/booking/5", cookies=self.jar)
         print(response.text)
         self.assertEqual(response.status_code, 201)
-        log.info('Test %s passed.' % inspect.stack()[0][3])
+
 
     #id: 9999
     def test_remove_with_invalid_id(self):
@@ -345,7 +305,7 @@ class BookerApiAll(unittest.TestCase):
         response = self.session.delete(self.base_url + "/booking/9999", cookies=self.jar)
         print(response.text)
         self.assertEqual(response.status_code, 405)
-        log.info('Test %s passed.' % inspect.stack()[0][3])
+
 
     def tearDown(self):
         print("                \n")
@@ -354,30 +314,8 @@ class BookerApiAll(unittest.TestCase):
 
 
 
-if __name__ == "__main__":
-
-    unittest.main()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+if __name__ == '__main__':
+    runner = unittest.TextTestRunner(failfast=True)
+    runner.run(suite())

@@ -15,9 +15,6 @@ BAD_REQUEST = 'Bad request'
 INTERNAL_FAIL = "Internal failure"
 
 
-
-
-
 def _get_item(id):
     id_json = check_data.get_data()
     #with open('/Users/yuchienhuang/PycharmProjects/python_api_testing/Restful_unittest_Booker/Mock_Flask/Data/book_list.json','r') as f:
@@ -41,8 +38,6 @@ def bad_request(error):
 @app.errorhandler(500)
 def bad_request(error):
     return make_response(jsonify({'error': INTERNAL_FAIL}), 500)
-
-
 
 
 @app.route('/')
@@ -71,7 +66,6 @@ def get_id_with_info(id):
         for i in id_json:
             if i["booking id"] == int(id):
                 return jsonify(i), 200
-
 
 
 #no limitations for repeated/similar booking
@@ -104,9 +98,6 @@ def create_new_booking():
     id_json = check_data.get_data()
 
     return jsonify(id_json[-1]), 200
-    #return "goodbye", 200
-
-
 
 
 #how to deal with the cookie thing
@@ -131,32 +122,19 @@ def update_booking(id):
     check_data.update_data(id_json)
     update_info = _get_item(id)
 
-    #return "goodbye", 200
     return jsonify(update_info), 200
-
 
 
 @app.route('/booking/<int:id>', methods=['DELETE'])
 def delete_booking(id):
     id_json = check_data.get_data()
-
-
     for i in id_json:
          if i["booking id"] == id:
             id_json.remove(i)
 
-
-
-
     check_data.update_data(id_json)
 
-
-
     return jsonify(id_json), 201
-
-
-
-
 
 
 if __name__ == "__main__":

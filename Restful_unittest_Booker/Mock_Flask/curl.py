@@ -62,18 +62,8 @@ for line in tests.strip().split('\n'):
 """
 
             
-
-
 #delete not existing id
-curl -i -H "Content-Type: application/json" -X DELETE http://127.0.0.1:5000/booking/500
-
-            
-
-
-
-
-
- 
+curl -i -H "Content-Type: application/json" -X DELETE http://127.0.0.1:5000/booking/5000
             
 #create the same booking content
 curl -i -H "Content-Type: application/json" -X POST -d '{"firstname": "Chole", "lastname": "Bryson", "totalprice": 230, "depositpaid": false,
@@ -81,13 +71,8 @@ curl -i -H "Content-Type: application/json" -X POST -d '{"firstname": "Chole", "
             "additionalneeds": "extra water bottles"}' http://127.0.0.1:3001/booking
             
 
-
-
 #create auth and token
 curl -i -H "Content-Type: application/json" -X POST -d '{"username" : "admin", "password" : "password123"}'  http://127.0.0.1:3001/auth
-
-
-
 
 # update with valid id and valid info
 curl -i -H "Content-Type: application/json" -H 'Accept: application/json' \ -H 'Cookie: token=abc123 -X PUT -d  '{
@@ -101,7 +86,6 @@ curl -i -H "Content-Type: application/json" -H 'Accept: application/json' \ -H '
             },
             "additionalneeds": "Room services: water bottles and some snacks"
         }' http://127.0.0.1:3001/booking/6
-
 
 
 # update with valid id and empty info
@@ -118,8 +102,7 @@ curl -i -H "Content-Type: application/json" -H 'Accept: application/json' \ -H '
         }
            
         }' http://127.0.0.1:3001/booking/4
-        
-        
+               
 #err: update with invalid id
 curl -i -H "Content-Type: application/json" -H 'Accept: application/json' \ -H 'Cookie: token=abc123 -X PUT -d  '{
              
@@ -142,8 +125,6 @@ curl -i -H "Content-Type: application/json" -H 'Accept: application/json' \ -H '
             "firstname": "Lisa",
             "lastname": "Morrison"}'    
             http://127.0.0.1:3001/booking/1
-
-
 
 #delete nonexisting id
 curl -i -H "Content-Type: application/json" -X DELETE http://127.0.0.1:3001/booking/999
