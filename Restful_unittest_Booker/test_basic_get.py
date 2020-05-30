@@ -5,25 +5,20 @@ import unittest
 
 #firstname, lastname, totalprice, depositpaid, bookingdates, checkin, checkout, additionalneeds
 
-class RestApiTest1(unittest.TestCase):
-
+class BookerApiTest1(unittest.TestCase):
 
 
     def setUp(self):
-        self.url = "https://restful-booker.herokuapp.com/booking"
-        self.auth = "ttps://restful-booker.herokuapp.com/auth"
+        self.url = "https://restful-booker.herokuapp.com"
+        #self.auth = "ttps://restful-booker.herokuapp.com/auth"
 
     #how many books in this collection? show bookingId
-    def test_all_books(self):
-        response = requests.get(self.url)
-        print(response.status_code)
-        #print(response.text)
+    def test_get_all(self):
+        response = requests.get(self.url+"/booking")
         response_text = response.text
-        #print(response_text)
-
         response_json = json.loads(response.text)
         total_books = len(response_json)
-        #print(total_books)
+        print(total_books)
         print("all_books")
         print(response_json)
 
